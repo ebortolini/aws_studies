@@ -56,3 +56,8 @@ EOF
     Name = "${var.name}-${count.index + 1}"
   }
 }
+
+output "instance_ids" {
+  description = "A list of IDs of the EC2 instances."
+  value       = aws_instance.web_server.*.id
+}
