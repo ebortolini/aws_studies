@@ -13,6 +13,11 @@ variable "vpc_id" {
   type = string
 }
 
+variable "number_of_instances" {
+  type = number
+  default = 1
+}
+
 
 resource "aws_security_group" "web_server_sg" {
   name        = "${var.name}-sg"
@@ -38,15 +43,16 @@ resource "aws_instance" "web_server" {
   ami           = var.ami
   instance_type = var.instance_type
   vpc_security_group_ids = [aws_security_group.web_server_sg.id]
+  count = var.number_of_instances
   user_data = <<EOF
 #!/bin/bash
 yum update -y
 yum install -y httpd
 systemctl start httpd
 systemctl enable httpd
-echo "<h1>My EC2 from terragrunt</h1>" > /var/www/html/index.html
+echo "<h1>My EC2 from terragrunt - Instance ${count.index + 1}</h1>" > /var/www/html/index.html
 EOF
   tags = {
-    Name = var.name
+    Name = "${var.name}-${count.index + 1}"
   }
 }
